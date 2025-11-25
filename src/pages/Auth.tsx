@@ -2,14 +2,33 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Home } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ArrowRight, Home, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+
+const countries = [
+  { name: "India", code: "+91", flag: "🇮🇳" },
+  { name: "United States", code: "+1", flag: "🇺🇸" },
+  { name: "United Kingdom", code: "+44", flag: "🇬🇧" },
+  { name: "Canada", code: "+1", flag: "🇨🇦" },
+  { name: "Australia", code: "+61", flag: "🇦🇺" },
+  { name: "Germany", code: "+49", flag: "🇩🇪" },
+  { name: "France", code: "+33", flag: "🇫🇷" },
+  { name: "Japan", code: "+81", flag: "🇯🇵" },
+  { name: "China", code: "+86", flag: "🇨🇳" },
+  { name: "Brazil", code: "+55", flag: "🇧🇷" },
+  { name: "UAE", code: "+971", flag: "🇦🇪" },
+  { name: "Singapore", code: "+65", flag: "🇸🇬" },
+];
 
 const Auth = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtp, setShowOtp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(countries[0]);
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleSendOtp = () => {
@@ -66,9 +85,39 @@ const Auth = () => {
                 <div>
                   <label className="block text-sm font-medium mb-2">Mobile Number</label>
                   <div className="flex gap-2">
-                    <div className="w-16 h-12 rounded-xl border border-border flex items-center justify-center bg-muted/50">
-                      <span className="text-sm font-medium">+91</span>
-                    </div>
+                    <Popover open={open} onOpenChange={setOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-20 h-12 rounded-xl border-border bg-muted/50 hover:bg-muted flex items-center justify-between px-3"
+                        >
+                          <span className="text-sm font-medium">{selectedCountry.code}</span>
+                          <ChevronDown className="w-4 h-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 p-0" align="start">
+                        <ScrollArea className="h-72">
+                          <div className="p-2">
+                            {countries.map((country) => (
+                              <button
+                                key={country.code + country.name}
+                                onClick={() => {
+                                  setSelectedCountry(country);
+                                  setOpen(false);
+                                }}
+                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent transition-colors text-left"
+                              >
+                                <span className="text-2xl">{country.flag}</span>
+                                <div className="flex-1">
+                                  <div className="text-sm font-medium">{country.name}</div>
+                                  <div className="text-xs text-muted-foreground">{country.code}</div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                      </PopoverContent>
+                    </Popover>
                     <Input
                       type="tel"
                       placeholder="Enter mobile number"
@@ -99,7 +148,7 @@ const Auth = () => {
                 <div>
                   <label className="block text-sm font-medium mb-2">Enter OTP</label>
                   <p className="text-sm text-muted-foreground mb-4">
-                    We've sent a code to +91 {phoneNumber}
+                    We've sent a code to {selectedCountry.code} {phoneNumber}
                   </p>
                   <Input
                     type="text"
